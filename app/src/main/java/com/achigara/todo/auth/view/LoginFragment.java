@@ -2,7 +2,6 @@ package com.achigara.todo.auth.view;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +35,7 @@ public class LoginFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         loginFragmentBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.login_fragment, container, false);
         loginFragmentBinding.buttonLogin.setOnClickListener(this::performLogin);
+        loginFragmentBinding.buttonRegister.setOnClickListener(this::performRegister);
         loginFragmentBinding.setLifecycleOwner(getViewLifecycleOwner());
         return loginFragmentBinding.getRoot();
     }
@@ -46,27 +46,44 @@ public class LoginFragment extends Fragment {
         loginViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
         loginFragmentBinding.setViewmodel(loginViewModel);
 
+        //when the user successfully logs in go to main activity
         Observer<FirebaseUser> userObserver = user -> {
-            if(user != null){
+            if (user != null) {
                 navigateToMainActivity();
             }
         };
-
         loginViewModel.getFirebaseUser().observe(getViewLifecycleOwner(), userObserver);
 
-        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+        //clear email error when email changes
+        Observer<String> emailObserver = email -> {
+            loginFragmentBinding.emailInputLayout.setError(null);
+        };
+        loginViewModel.getEmail().observe(getViewLifecycleOwner(), emailObserver);
+
+        //clear password error when password changes
+        Observer<String> passwordObserver = password -> {
+            loginFragmentBinding.passwordInputLayout.setError(null);
+        };
+        loginViewModel.getPassword().observe(getViewLifecycleOwner(), passwordObserver);
+
+        //if user is already logged in go straight to the main activity
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             navigateToMainActivity();
         }
     }
 
-    private void navigateToMainActivity(){
+    private void navigateToMainActivity() {
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         getContext().startActivity(intent);
     }
 
-    private void performLogin(View view){
+    private void performLogin(View view) {
         loginViewModel.login();
+    }
+
+    private void performRegister(View view) {
+        loginViewModel.register();
     }
 
 }

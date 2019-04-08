@@ -15,5 +15,6 @@
     </string>
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
-    <string name="button_text_register_or_login">Register or Login</string>
+    <string name="button_text_register">Register</string>
+    <string name="button_text_login">Login</string>
 </resources>
