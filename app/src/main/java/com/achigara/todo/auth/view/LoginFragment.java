@@ -34,8 +34,8 @@ public class LoginFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         loginFragmentBinding = DataBindingUtil.inflate(getLayoutInflater(), R.layout.login_fragment, container, false);
-        loginFragmentBinding.buttonLogin.setOnClickListener(this::performLogin);
-        loginFragmentBinding.buttonRegister.setOnClickListener(this::performRegister);
+        loginFragmentBinding.buttonLogin.setOnClickListener(view -> performLogin());
+        loginFragmentBinding.buttonRegister.setOnClickListener(view -> performRegister());
         loginFragmentBinding.setLifecycleOwner(getViewLifecycleOwner());
         return loginFragmentBinding.getRoot();
     }
@@ -55,15 +55,11 @@ public class LoginFragment extends Fragment {
         loginViewModel.getFirebaseUser().observe(getViewLifecycleOwner(), userObserver);
 
         //clear email error when email changes
-        Observer<String> emailObserver = email -> {
-            loginFragmentBinding.emailInputLayout.setError(null);
-        };
+        Observer<String> emailObserver = email -> loginFragmentBinding.emailInputLayout.setError(null);
         loginViewModel.getEmail().observe(getViewLifecycleOwner(), emailObserver);
 
         //clear password error when password changes
-        Observer<String> passwordObserver = password -> {
-            loginFragmentBinding.passwordInputLayout.setError(null);
-        };
+        Observer<String> passwordObserver = password -> loginFragmentBinding.passwordInputLayout.setError(null);
         loginViewModel.getPassword().observe(getViewLifecycleOwner(), passwordObserver);
 
         //if user is already logged in go straight to the main activity
@@ -73,16 +69,18 @@ public class LoginFragment extends Fragment {
     }
 
     private void navigateToMainActivity() {
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        getContext().startActivity(intent);
+        if(getContext()!= null) {
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            getContext().startActivity(intent);
+        }
     }
 
-    private void performLogin(View view) {
+    private void performLogin() {
         loginViewModel.login();
     }
 
-    private void performRegister(View view) {
+    private void performRegister() {
         loginViewModel.register();
     }
 

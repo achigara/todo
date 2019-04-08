@@ -75,31 +75,31 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
         return firebaseUser;
     }
 
-    private boolean hasCredentialErrors() {
-        boolean hasErrors = false;
+    private boolean isValidCredentials() {
+        boolean isValid = true;
 
         if (!isEmailValid(email.getValue())) {
             emailError.setValue(getApplication().getString(R.string.error_invalid_email));
-            hasErrors = true;
+            isValid = false;
         }
         if (!isPasswordValid(password.getValue())) {
             passwordError.setValue(getApplication().getString(R.string.error_invalid_password));
-            hasErrors = true;
+            isValid = false;
         }
 
-        return hasErrors;
+        return isValid;
     }
 
     public void login() {
         authenticationError.setValue("");
-        if (!hasCredentialErrors()) {
+        if (isValidCredentials()) {
             authenticationManager.performLogin(email.getValue(), password.getValue(), this);
         }
     }
 
     public void register() {
         authenticationError.setValue("");
-        if (!hasCredentialErrors()) {
+        if (isValidCredentials()) {
             authenticationManager.performRegister(email.getValue(), password.getValue(), this);
         }
     }
@@ -110,6 +110,7 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
             Log.e("LoginViewModel", "success");
             firebaseUser.setValue(FirebaseAuth.getInstance().getCurrentUser());
         } else {
+            if(task.getException() != null && task.getException().getLocalizedMessage() != null)
             authenticationError.setValue(task.getException().getLocalizedMessage());
         }
     }
