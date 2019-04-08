@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "12072781527",
+    "firebase_url": "https://todo-cb198.firebaseio.com",
+    "project_id": "todo-cb198",
+    "storage_bucket": "todo-cb198.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:12072781527:android:80f825bd07dc5c54",
+        "android_client_info": {
+          "package_name": "com.achigara.todo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn6kOOKFSm7_1XuPP42n7X8Exq9xvuyd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "12072781527-k4tk2kq22onk5i4l58eap3srqjt4rehm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
