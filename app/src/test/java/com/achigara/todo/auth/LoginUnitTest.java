@@ -1,47 +1,49 @@
 package com.achigara.todo.auth;
 
-import com.achigara.todo.auth.viewmodel.LoginViewModel;
+import com.achigara.todo.auth.viewmodel.AuthenticationViewModel;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import static org.junit.Assert.*;
+import androidx.test.core.app.ApplicationProvider;
+
+import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
 public class LoginUnitTest {
 
-    LoginViewModel loginViewModel;
+    private AuthenticationViewModel authenticationViewModel;
 
     @Before
     public void init() {
-        loginViewModel = new LoginViewModel("", "");
+        authenticationViewModel = new AuthenticationViewModel(ApplicationProvider.getApplicationContext(), "");
     }
 
     @Test
     public void emailNotEmpty (){
-        assertFalse(loginViewModel.isEmailValid(""));
+        assertThat(authenticationViewModel.isEmailValid("")).isFalse();
     }
     @Test
     public void emailFormatCorrect(){
-        assertFalse(loginViewModel.isEmailValid("abc"));
-        assertFalse(loginViewModel.isEmailValid("abc@"));
-        assertFalse(loginViewModel.isEmailValid("@"));
-        assertFalse(loginViewModel.isEmailValid("abc.xyz"));
-        assertFalse(loginViewModel.isEmailValid("abc@def"));
-        assertTrue(loginViewModel.isEmailValid("abc@def.xyz"));
-        assertTrue(loginViewModel.isEmailValid("abc@def.xy.z"));
+        assertThat(authenticationViewModel.isEmailValid("abc")).isFalse();
+        assertThat(authenticationViewModel.isEmailValid("abc@")).isFalse();
+        assertThat(authenticationViewModel.isEmailValid("@")).isFalse();
+        assertThat(authenticationViewModel.isEmailValid("abc.xyz")).isFalse();
+        assertThat(authenticationViewModel.isEmailValid("abc@def")).isFalse();
+        assertThat(authenticationViewModel.isEmailValid("abc@def.xyz")).isTrue();
+        assertThat(authenticationViewModel.isEmailValid("abc@def.xy.z")).isTrue();
     }
 
     @Test
     public void passwordNotEmpty(){
-        assertFalse(loginViewModel.isPasswordValid(""));
+        assertThat(authenticationViewModel.isPasswordValid("")).isFalse();
     }
 
     @Test
     public void passwordLongEnough(){
-        assertFalse(loginViewModel.isPasswordValid("a"));
-        assertTrue(loginViewModel.isPasswordValid("12345678"));
+        assertThat(authenticationViewModel.isPasswordValid("a")).isFalse();
+        assertThat(authenticationViewModel.isPasswordValid("12345678")).isTrue();
     }
 }

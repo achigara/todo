@@ -1,4 +1,4 @@
-package com.achigara.todo.ui.main;
+package com.achigara.todo.main.view;
 
 import androidx.lifecycle.ViewModelProviders;
 
@@ -13,26 +13,26 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.achigara.todo.R;
+import com.achigara.todo.main.viewmodel.TodoDetailsViewModel;
 
-public class MainFragment extends Fragment {
+public class TodoDetailsFragment extends Fragment {
 
-    private MainViewModel mViewModel;
+    private TodoDetailsViewModel mViewModel;
 
-    public static MainFragment newInstance() {
-        return new MainFragment();
+    public static TodoDetailsFragment newInstance() {
+        return new TodoDetailsFragment();
     }
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.main_fragment, container, false);
+        return inflater.inflate(R.layout.todo_details_fragment, container, false);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(TodoDetailsViewModel.class);
         // TODO: Use the ViewModel
     }
 

@@ -5,17 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.achigara.todo.R;
-import com.achigara.todo.auth.view.LoginFragment;
+import com.achigara.todo.auth.view.AuthenticationFragment;
 
-public class LoginActivity extends AppCompatActivity {
+public class AuthenticationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_activity);
+        setContentView(R.layout.authentication_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, LoginFragment.newInstance())
+                    .replace(R.id.container, AuthenticationFragment.newInstance())
                     .commitNow();
         }
     }

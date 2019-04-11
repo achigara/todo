@@ -18,7 +18,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class LoginViewModel extends AndroidViewModel implements OnCompleteListener<AuthResult> {
+public class AuthenticationViewModel extends AndroidViewModel implements OnCompleteListener<AuthResult> {
 
     private MutableLiveData<String> email;
     private MutableLiveData<String> password;
@@ -28,7 +28,7 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
     private MutableLiveData<FirebaseUser> firebaseUser;
     private AuthenticationManager authenticationManager;
 
-    public LoginViewModel(Application application) {
+    public AuthenticationViewModel(Application application) {
         super(application);
         firebaseUser = new MutableLiveData<>();
         email = new MutableLiveData<>();
@@ -36,11 +36,12 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
         emailError = new MutableLiveData<>();
         passwordError = new MutableLiveData<>();
         authenticationError = new MutableLiveData<>();
-
         authenticationManager = new AuthenticationManager();
+    }
 
-        email.setValue("amin.chigara@yatechnologies.com");
-        password.setValue("12345678");
+    //Constructor used for unit tests
+    public AuthenticationViewModel(Application application, String test) {
+        super(application);
     }
 
     public MutableLiveData<String> getEmail() {
@@ -63,16 +64,16 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
         return authenticationError;
     }
 
+    public LiveData<FirebaseUser> getFirebaseUser() {
+        return firebaseUser;
+    }
+
     public boolean isEmailValid(String email) {
         return (!TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches());
     }
 
     public boolean isPasswordValid(String password) {
         return !TextUtils.isEmpty(password) && password.length() >= 8;
-    }
-
-    public LiveData<FirebaseUser> getFirebaseUser() {
-        return firebaseUser;
     }
 
     private boolean isValidCredentials() {
@@ -107,11 +108,11 @@ public class LoginViewModel extends AndroidViewModel implements OnCompleteListen
     @Override
     public void onComplete(@NonNull Task<AuthResult> task) {
         if (task.isSuccessful()) {
-            Log.e("LoginViewModel", "success");
+            Log.e("AuthenticationViewModel", "success");
             firebaseUser.setValue(FirebaseAuth.getInstance().getCurrentUser());
         } else {
             if(task.getException() != null && task.getException().getLocalizedMessage() != null)
-            authenticationError.setValue(task.getException().getLocalizedMessage());
+                authenticationError.setValue(task.getException().getLocalizedMessage());
         }
     }
 }
