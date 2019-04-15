@@ -29,15 +29,7 @@ public class TodoListViewModel extends AndroidViewModel {
         return itemList;
     }
 
-    public void addItem(TodoItem item){
-        todoRepository.addItem(item);
-    }
-
     public void deleteItem(TodoItem item){
         todoRepository.deleteItem(item);
-    }
-
-    public void updateItem(TodoItem item){
-        todoRepository.updateItem(item);
     }
 }

@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey;
 @Entity (tableName = "todo_items")
 public class TodoItem implements Parcelable {
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private long id;
     private String title;
     private String description;

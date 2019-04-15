@@ -43,7 +43,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<TodoListAdapter.TodoIt
             holder.todoItemBinding.getRoot().setOnClickListener(view -> {
                 if(fragment.getActivity() != null) {
                     fragment.getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, TodoDetailsFragment.newInstance(itemList.getValue().get(position), false), TAG)
+                            .replace(R.id.container, TodoDetailsFragment.newInstance(itemList.getValue().get(position), TodoDetailsFragment.ACTION_VIEW), TAG)
                             .addToBackStack(TAG)
                             .commit();
                 }
