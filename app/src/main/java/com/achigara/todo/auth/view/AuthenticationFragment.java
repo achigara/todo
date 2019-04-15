@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.achigara.todo.MainActivity;
+import com.achigara.todo.main.MainActivity;
 import com.achigara.todo.R;
 import com.achigara.todo.auth.viewmodel.AuthenticationViewModel;
 import com.achigara.todo.databinding.AuthenticationFragmentBinding;

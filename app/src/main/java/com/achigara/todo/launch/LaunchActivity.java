@@ -3,7 +3,7 @@ package com.achigara.todo.launch;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.achigara.todo.MainActivity;
+import com.achigara.todo.main.MainActivity;
 import com.achigara.todo.R;
 import com.achigara.todo.auth.AuthenticationActivity;
 import com.google.firebase.auth.FirebaseAuth;
