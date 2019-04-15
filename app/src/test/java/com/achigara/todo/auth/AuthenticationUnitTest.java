@@ -12,7 +12,7 @@ import androidx.test.core.app.ApplicationProvider;
 import static com.google.common.truth.Truth.assertThat;
 
 @RunWith(RobolectricTestRunner.class)
-public class LoginUnitTest {
+public class AuthenticationUnitTest {
 
     private AuthenticationViewModel authenticationViewModel;
 

@@ -1,7 +1,8 @@
-package com.achigara.todo;
+package com.achigara.todo.main;
 
 import android.os.Bundle;
 
+import com.achigara.todo.R;
 import com.achigara.todo.main.view.TodoListFragment;
 
 import androidx.appcompat.app.AppCompatActivity;
