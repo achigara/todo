@@ -43,7 +43,7 @@ public class TodoListFragment extends Fragment {
         fab.setOnClickListener(view -> {
             if (getActivity() != null) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, TodoDetailsFragment.newInstance(new TodoItem(), true), TAG)
+                        .replace(R.id.container, TodoDetailsFragment.newInstance(new TodoItem(), TodoDetailsFragment.ACTION_CREATE), TAG)
                         .addToBackStack(TAG)
                         .commit();
             }

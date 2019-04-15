@@ -8,7 +8,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {TodoItem.class}, version = 1, exportSchema = false)
+@Database(entities = {TodoItem.class}, version = 2, exportSchema = false)
 public abstract class TodoItemDB extends RoomDatabase {
 
     public abstract TodoItemDao todoItemDao();
@@ -21,6 +21,7 @@ public abstract class TodoItemDB extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             TodoItemDB.class, "todo_item_db")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

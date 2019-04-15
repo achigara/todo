@@ -23,4 +23,5 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="content_description_has_alarm">has alarm</string>
+    <string name="error_item_title">The title cannot be empty</string>
 </resources>

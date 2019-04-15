@@ -50,15 +50,21 @@ public class TodoRepository {
     }
 
     public void updateItem(TodoItem item) {
-        todoItemDB.todoItemDao().update(item);
+        new Thread(
+                () -> todoItemDB.todoItemDao().update(item)
+        ).start();
     }
 
     public void deleteItem(TodoItem item) {
-        todoItemDB.todoItemDao().delete(item);
+        new Thread(
+                () -> todoItemDB.todoItemDao().delete(item)
+        ).start();
     }
 
-    public void deleteAllItems(TodoItem item) {
-        todoItemDB.todoItemDao().delete(item);
+    public void deleteAllItems() {
+        new Thread(
+                () -> todoItemDB.todoItemDao().deleteAll()
+        ).start();
     }
 
     public LiveData<List<TodoItem>> getTodoItems() {
