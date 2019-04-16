@@ -17,14 +17,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 import static com.achigara.todo.main.view.TodoDetailsFragment.TAG;
 
 public class TodoListFragment extends Fragment {
 
     private RecyclerView todoList;
+    private TodoListViewModel todoListViewModel;
 
     public static TodoListFragment newInstance() {
         return new TodoListFragment();
@@ -49,13 +53,16 @@ public class TodoListFragment extends Fragment {
             }
         });
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback());
+        itemTouchHelper.attachToRecyclerView(todoList);
+
         return root;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        TodoListViewModel todoListViewModel = ViewModelProviders.of(this).get(TodoListViewModel.class);
+        todoListViewModel = ViewModelProviders.of(this).get(TodoListViewModel.class);
 
         todoList.setAdapter(new TodoListAdapter(this, todoListViewModel.getItemList()));
 
@@ -67,4 +74,25 @@ public class TodoListFragment extends Fragment {
         todoListViewModel.getItemList().observe(getViewLifecycleOwner(), todoItemsObserver);
     }
 
+    private class ItemTouchHelperCallback extends ItemTouchHelper.Callback{
+        @Override
+        public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+            return makeMovementFlags(0, LEFT | RIGHT);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            todoListViewModel.deleteItem(todoListViewModel.getItemList().getValue().get(viewHolder.getAdapterPosition()));
+        }
+
+        @Override
+        public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+            return 0.5f;
+        }
+    }
 }
