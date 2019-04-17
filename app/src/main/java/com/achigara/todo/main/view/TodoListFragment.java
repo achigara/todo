@@ -74,7 +74,7 @@ public class TodoListFragment extends Fragment {
         todoListViewModel.getItemList().observe(getViewLifecycleOwner(), todoItemsObserver);
     }
 
-    private class ItemTouchHelperCallback extends ItemTouchHelper.Callback{
+    private class ItemTouchHelperCallback extends ItemTouchHelper.Callback {
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(0, LEFT | RIGHT);
@@ -87,7 +87,9 @@ public class TodoListFragment extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            todoListViewModel.deleteItem(todoListViewModel.getItemList().getValue().get(viewHolder.getAdapterPosition()));
+            if (todoListViewModel.getItemList().getValue() != null) {
+                todoListViewModel.deleteItem(todoListViewModel.getItemList().getValue().get(viewHolder.getAdapterPosition()));
+            }
         }
 
         @Override

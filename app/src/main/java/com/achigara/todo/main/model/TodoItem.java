@@ -7,7 +7,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity (tableName = "todo_items")
+@Entity(tableName = "todo_items")
 public class TodoItem implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
@@ -37,7 +37,7 @@ public class TodoItem implements Parcelable {
     }
 
     @Ignore
-    public TodoItem(){
+    public TodoItem() {
         this.title = "";
         this.description = "";
         this.type = 1;
@@ -93,20 +93,8 @@ public class TodoItem implements Parcelable {
         this.alarmInterval = alarmInterval;
     }
 
-    public boolean hasAlarm(){
+    public boolean hasAlarm() {
         return (alarmTime > 0);
-    }
-
-    public String getHumanReadableAlarmDate(){
-        return "dd/mm/yyyy";
-    }
-
-    public String getHumanReadableAlarmTime(){
-        return "hh:mm";
-    }
-
-    public String getHumanReadableAlarmInterval(){
-        return "mm minutes/hh hours";
     }
 
     @Override
