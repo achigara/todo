@@ -24,4 +24,6 @@
     <string name="description">Description</string>
     <string name="content_description_has_alarm">has alarm</string>
     <string name="error_item_title">The title cannot be empty</string>
+    <string name="edit">Edit</string>
+    <string name="error_item_alarm">Alarm time should be later than current time</string>
 </resources>

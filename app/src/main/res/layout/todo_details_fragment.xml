@@ -12,10 +12,6 @@
         <import type="android.text.TextUtils" />
 
         <variable
-            name="action"
-            type="int" />
-
-        <variable
             name="viewmodel"
             type="com.achigara.todo.main.viewmodel.TodoDetailsViewModel" />
     </data>
@@ -45,12 +41,12 @@
                 android:id="@+id/item_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:cursorVisible="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:focusable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:focusableInTouchMode="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:cursorVisible="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:focusable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:focusableInTouchMode="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
                 android:hint="@string/title"
-                android:text="@={viewmodel.item.title}" />
+                android:text="@={viewmodel.title}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -70,12 +66,12 @@
                 android:id="@+id/item_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:cursorVisible="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:focusable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
-                android:focusableInTouchMode="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:cursorVisible="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:focusable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+                android:focusableInTouchMode="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
                 android:hint="@string/description"
-                android:text="@={viewmodel.item.description}" />
+                android:text="@={viewmodel.description}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -84,9 +80,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="118dp"
             android:layout_marginRight="118dp"
-            android:clickable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
             android:padding="8dp"
-            android:text="@{viewmodel.item.humanReadableAlarmDate}"
+            android:text="@{viewmodel.humanReadableAlarmDate}"
             app:layout_constraintEnd_toStartOf="@+id/pick_time"
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintStart_toStartOf="parent"
@@ -96,43 +92,50 @@
             android:id="@+id/pick_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="@{(action != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
             android:padding="8dp"
-            android:text="@{viewmodel.item.humanReadableAlarmTime}"
+            android:text="@{viewmodel.humanReadableAlarmTime}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/pick_date"
             app:layout_constraintTop_toBottomOf="@+id/descriptionInputLayout" />
+
+        <TextView
+            android:id="@+id/alarmError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@{viewmodel.alarmError}"
+            android:textColor="@android:color/holo_red_light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/barrier" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="pick_time,pick_date" />
+            app:constraint_referenced_ids="pick_date" />
 
         <Button
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="8dp"
             android:text="@string/save"
-            android:visibility="@{(action != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/barrier" />
+            app:layout_constraintTop_toBottomOf="@+id/alarmError" />
 
         <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="8dp"
             android:text="@string/cancel"
-            android:visibility="@{(action != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toStartOf="@id/save"
-            app:layout_constraintTop_toBottomOf="@id/barrier" />
+            app:layout_constraintTop_toBottomOf="@+id/alarmError" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
