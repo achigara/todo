@@ -26,4 +26,14 @@
     <string name="error_item_title">The title cannot be empty</string>
     <string name="edit">Edit</string>
     <string name="error_item_alarm">Alarm time should be later than current time</string>
+    <string name="remind_me">Remind Me</string>
+    <string name="repeat_alarm">Repeat Alarm</string>
+    <string name="hours">Hours</string>
+    <string name="minutes">Minutes</string>
+    <string name="every">Every</string>
+    <string name="the">"The "</string>
+    <string name="at">"At "</string>
+    <string name="_00">00</string>
+    <string name="on">On</string>
+    <string name="error_repeat_alarm">Please specify how long the app should wait to re-notify you</string>
 </resources>

@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import com.achigara.todo.R;
 import com.achigara.todo.common.Event;
 import com.achigara.todo.main.model.TodoItem;
+import com.achigara.todo.main.notifications.NotificationsManager;
 import com.achigara.todo.main.repository.TodoRepository;
 
 import java.text.DecimalFormat;
@@ -24,12 +25,17 @@ public class TodoDetailsViewModel extends AndroidViewModel {
     private MutableLiveData<Long> id;
     private MutableLiveData<String> title;
     private MutableLiveData<String> description;
-    private MutableLiveData<Integer> type;
+    private MutableLiveData<Boolean> hasAlarm;
     private MutableLiveData<Long> alarmTime;
+    private MutableLiveData<Boolean> repeatAlarm;
     private MutableLiveData<Long> alarmInterval;
     private MutableLiveData<String> titleError;
     private MutableLiveData<String> alarmError;
-    private MutableLiveData<Event<Boolean>> operationStatus;
+    private MutableLiveData<String> repeatHours;
+    private MutableLiveData<String> repeatMinutes;
+    private MutableLiveData<String> repeatAlarmError;
+
+    private LiveData<Event<Boolean>> operationStatus;
 
     private TodoRepository todoRepository;
 
@@ -40,14 +46,20 @@ public class TodoDetailsViewModel extends AndroidViewModel {
         id = new MutableLiveData<>();
         title = new MutableLiveData<>();
         description = new MutableLiveData<>();
-        type = new MutableLiveData<>();
+        hasAlarm = new MutableLiveData<>();
         alarmTime = new MutableLiveData<>();
+        repeatAlarm = new MutableLiveData<>();
         alarmInterval = new MutableLiveData<>();
         titleError = new MutableLiveData<>();
         alarmError = new MutableLiveData<>();
+        repeatHours = new MutableLiveData<>();
+        repeatMinutes = new MutableLiveData<>();
+        repeatAlarmError = new MutableLiveData<>();
+
         operationStatus = new MutableLiveData<>();
 
         todoRepository = TodoRepository.getRepository(application);
+        observeItemInsertsAndUpdates();
     }
 
     public TodoItem getItem() {
@@ -60,9 +72,18 @@ public class TodoDetailsViewModel extends AndroidViewModel {
         this.id.setValue(item.getId());
         this.title.setValue(item.getTitle());
         this.description.setValue(item.getDescription());
-        this.type.setValue(item.getType());
         this.alarmTime.setValue(item.getAlarmTime());
         this.alarmInterval.setValue(item.getAlarmInterval());
+        this.hasAlarm.setValue(item.getAlarmTime() > 0);
+        this.repeatAlarm.setValue(item.getAlarmTime() > 0 && item.getAlarmInterval() > 0);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(item.getAlarmInterval());
+        repeatHours.setValue(String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
+        repeatMinutes.setValue(String.valueOf(calendar.get(Calendar.MINUTE)));
+    }
+
+    public LiveData<Long> getId() {
+        return id;
     }
 
     public MutableLiveData<String> getTitle() {
@@ -81,12 +102,44 @@ public class TodoDetailsViewModel extends AndroidViewModel {
         this.description = description;
     }
 
+    public MutableLiveData<Boolean> getHasAlarm() {
+        return hasAlarm;
+    }
+
+    public void setHasAlarm(MutableLiveData<Boolean> hasAlarm) {
+        this.hasAlarm = hasAlarm;
+    }
+
     public MutableLiveData<Long> getAlarmTime() {
         return alarmTime;
     }
 
     public void setAlarmTime(MutableLiveData<Long> alarmTime) {
         this.alarmTime = alarmTime;
+    }
+
+    public MutableLiveData<Boolean> getRepeatAlarm() {
+        return repeatAlarm;
+    }
+
+    public void setRepeatAlarm(MutableLiveData<Boolean> repeatAlarm) {
+        this.repeatAlarm = repeatAlarm;
+    }
+
+    public MutableLiveData<String> getRepeatHours() {
+        return repeatHours;
+    }
+
+    public void setRepeatHours(MutableLiveData<String> repeatHours) {
+        this.repeatHours = repeatHours;
+    }
+
+    public MutableLiveData<String> getRepeatMinutes() {
+        return repeatMinutes;
+    }
+
+    public void setRepeatMinutes(MutableLiveData<String> repeatMinutes) {
+        this.repeatMinutes = repeatMinutes;
     }
 
     public MutableLiveData<Long> getAlarmInterval() {
@@ -113,6 +166,14 @@ public class TodoDetailsViewModel extends AndroidViewModel {
         this.alarmError.setValue(alarmError);
     }
 
+    public MutableLiveData<String> getRepeatAlarmError() {
+        return repeatAlarmError;
+    }
+
+    public void setRepeatAlarmErrorValue(String repeatAlarmError) {
+        this.repeatAlarmError.setValue(repeatAlarmError);
+    }
+
     public LiveData<Event<Boolean>> getOperationStatus() {
         return operationStatus;
     }
@@ -124,7 +185,6 @@ public class TodoDetailsViewModel extends AndroidViewModel {
     public void setActionValue(int action) {
         this.action.setValue(action);
     }
-
 
     public LiveData<String> getHumanReadableAlarmDate() {
 
@@ -168,68 +228,111 @@ public class TodoDetailsViewModel extends AndroidViewModel {
         });
     }
 
-    public LiveData<String> getHumanReadableAlarmInterval() {
-
+    public LiveData<Integer> getAlarmIntervalHours() {
         return Transformations.map(alarmInterval, alarmInterval -> {
             if (alarmInterval > 0) {
-                DecimalFormat format = new DecimalFormat("#00");
-
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(alarmInterval);
 
-                String time = "Repeat every ";
-                time += format.format(calendar.get(Calendar.HOUR_OF_DAY));
-                time += "hours, ";
-                time += format.format(calendar.get(Calendar.MINUTE));
-                time += "minutes";
-
-                return time;
+                return calendar.get(Calendar.HOUR_OF_DAY);
             }
 
-            return "";
+            return 0;
         });
     }
 
-    private boolean isValidItem(TodoItem item) {
+    public LiveData<Integer> getAlarmIntervalMinutes() {
+        return Transformations.map(alarmInterval, alarmInterval -> {
+            if (alarmInterval > 0) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(alarmInterval);
+
+                return calendar.get(Calendar.MINUTE);
+            }
+
+            return 0;
+        });
+    }
+
+    private boolean isValidItem() {
         boolean isValid = true;
 
-        if (item != null && TextUtils.isEmpty(item.getTitle())) {
+        if (TextUtils.isEmpty(title.getValue())) {
             titleError.setValue(getApplication().getString(R.string.error_item_title));
             isValid = false;
         }
 
-        if (item != null && item.getAlarmTime() > 0 && item.getAlarmTime() < Calendar.getInstance().getTimeInMillis()) {
-            alarmError.setValue(getApplication().getString(R.string.error_item_alarm));
-            isValid = false;
+        if (hasAlarm.getValue() != null) {
+            if (alarmTime.getValue() != null && alarmTime.getValue() < Calendar.getInstance().getTimeInMillis()) {
+                alarmError.setValue(getApplication().getString(R.string.error_item_alarm));
+                isValid = false;
+            }
+
+            if (repeatAlarm.getValue() != null && repeatAlarm.getValue()) {
+                if (alarmInterval.getValue() != null && alarmInterval.getValue() <= 0) {
+                    repeatAlarmError.setValue(getApplication().getString(R.string.error_repeat_alarm));
+                    isValid = false;
+                }
+            }
         }
 
         return isValid;
     }
 
-    public void addItem() {
-        TodoItem item = new TodoItem(title.getValue(), description.getValue(),
-                type.getValue() != null ? type.getValue() : 0,
-                alarmTime.getValue() != null ? alarmTime.getValue() : 0,
-                alarmInterval.getValue() != null ? alarmInterval.getValue() : 0);
+    private void setAlarmIntervalValue() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(repeatHours.getValue()));
+        calendar.set(Calendar.MINUTE, Integer.valueOf(repeatMinutes.getValue()));
+        alarmInterval.setValue(calendar.getTimeInMillis());
+    }
 
-        if (isValidItem(item)) {
+    public void addItem() {
+        setAlarmIntervalValue();
+        if (isValidItem()) {
+            TodoItem item = new TodoItem(
+                    title.getValue(),
+                    description.getValue(),
+                    hasAlarm.getValue() != null && hasAlarm.getValue() &&
+                            alarmTime.getValue() != null ? alarmTime.getValue() : 0,
+                    hasAlarm.getValue() != null && hasAlarm.getValue() &&
+                            repeatAlarm.getValue() != null && repeatAlarm.getValue() &&
+                            alarmInterval.getValue() != null ? alarmInterval.getValue() : 0);
             todoRepository.addItem(item);
-            operationStatus.setValue(new Event<>(true));
         }
     }
 
     public void updateItem() {
-        TodoItem item = new TodoItem(
-                id.getValue() != null ? id.getValue() : 0,
-                title.getValue(),
-                description.getValue(),
-                type.getValue() != null ? type.getValue() : 0,
-                alarmTime.getValue() != null ? alarmTime.getValue() : 0,
-                alarmInterval.getValue() != null ? alarmInterval.getValue() : 0);
-
-        if (isValidItem(item)) {
+        setAlarmIntervalValue();
+        if (isValidItem()) {
+            TodoItem item = new TodoItem(
+                    id.getValue() != null ? id.getValue() : 0,
+                    title.getValue(),
+                    description.getValue(),
+                    hasAlarm.getValue() != null && hasAlarm.getValue() &&
+                            alarmTime.getValue() != null ? alarmTime.getValue() : 0,
+                    hasAlarm.getValue() != null && hasAlarm.getValue() &&
+                            repeatAlarm.getValue() != null && repeatAlarm.getValue() &&
+                            alarmInterval.getValue() != null ? alarmInterval.getValue() : 0);
             todoRepository.updateItem(item);
-            operationStatus.setValue(new Event<>(true));
         }
+    }
+
+    private void observeItemInsertsAndUpdates() {
+        operationStatus = Transformations.map(todoRepository.getInsertedOrUpdatedItem(), event -> {
+            TodoItem item = event.getContentIfNotHandled();
+            if (item != null) {
+                if (item.hasAlarm()) {
+                    setNotification(item);
+                }
+                return new Event<>(true);
+            }
+
+            return new Event<>(false);
+        });
+    }
+
+    private void setNotification(TodoItem item) {
+        NotificationsManager.getInstance(getApplication()).scheduleNotification(item);
     }
 }

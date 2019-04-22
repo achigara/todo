@@ -2,45 +2,65 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
+
         <import type="android.view.View" />
+
         <variable
             name="todoItem"
             type="com.achigara.todo.main.model.TodoItem" />
     </data>
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:background="#FFF"
-        android:padding="8dp"
-        android:layout_margin="8dp">
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/todoItemTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{todoItem.title}"
+            android:layout_margin="4dp"
             android:padding="4dp"
-            android:layout_margin="4dp"/>
+            android:text="@{todoItem.title}" />
 
         <TextView
             android:id="@+id/todoItemDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{todoItem.description}"
+            android:layout_margin="4dp"
             android:padding="4dp"
-            android:layout_margin="4dp"/>
+            android:text="@{todoItem.description}" />
 
-        <ImageView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:src="@android:drawable/ic_lock_idle_alarm"
-            android:padding="4dp"
+            android:orientation="horizontal"
             android:layout_margin="4dp"
-            android:visibility="@{todoItem.hasAlarm() ? View.VISIBLE : View.GONE}"
-            android:contentDescription="@string/content_description_has_alarm" />
+            android:padding="4dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="4dp"
+                android:contentDescription="@string/content_description_has_alarm"
+                android:padding="4dp"
+                android:src="@drawable/ic_alarm"
+                android:visibility="@{todoItem.hasAlarm() ? View.VISIBLE : View.GONE}" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_margin="4dp"
+                android:contentDescription="@string/repeat_alarm"
+                android:padding="4dp"
+                android:src="@drawable/ic_sync"
+                android:visibility="@{todoItem.repeatAlarm() ? View.VISIBLE : View.GONE}" />
+        </LinearLayout>
 
     </LinearLayout>
 </layout>

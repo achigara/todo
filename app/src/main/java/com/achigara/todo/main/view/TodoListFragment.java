@@ -87,9 +87,7 @@ public class TodoListFragment extends Fragment {
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            if (todoListViewModel.getItemList().getValue() != null) {
-                todoListViewModel.deleteItem(todoListViewModel.getItemList().getValue().get(viewHolder.getAdapterPosition()));
-            }
+            todoListViewModel.deleteItemAtPosition(viewHolder.getAdapterPosition());
         }
 
         @Override

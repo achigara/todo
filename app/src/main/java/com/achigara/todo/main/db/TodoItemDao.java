@@ -22,7 +22,7 @@ public interface TodoItemDao {
     TodoItem getItem(long itemId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(TodoItem item);
+    long insert(TodoItem item);
 
     @Query("DELETE FROM todo_items")
     void deleteAll();
@@ -31,5 +31,5 @@ public interface TodoItemDao {
     void delete(TodoItem item);
 
     @Update
-    void update(TodoItem item);
+    int update(TodoItem item);
 }

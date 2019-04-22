@@ -29,7 +29,13 @@ public class TodoListViewModel extends AndroidViewModel {
         return itemList;
     }
 
-    public void deleteItem(TodoItem item){
+    public void deleteItemAtPosition(int position) {
+        if (itemList.getValue() != null) {
+            deleteItem(itemList.getValue().get(position));
+        }
+    }
+
+    private void deleteItem(TodoItem item) {
         todoRepository.deleteItem(item);
     }
 }

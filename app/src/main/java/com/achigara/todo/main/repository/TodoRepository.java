@@ -2,23 +2,26 @@ package com.achigara.todo.main.repository;
 
 import android.app.Application;
 
+import com.achigara.todo.common.Event;
 import com.achigara.todo.main.db.TodoItemDB;
 import com.achigara.todo.main.model.TodoItem;
 
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 public class TodoRepository {
 
+    private static TodoRepository repository;
     private TodoItemDB todoItemDB;
     private LiveData<List<TodoItem>> todoItems;
-    private static TodoRepository repository;
-
+    private MutableLiveData<Event<TodoItem>> insertedOrUpdatedItem;
 
     private TodoRepository(Application application) {
         todoItemDB = TodoItemDB.getDatabase(application);
+        insertedOrUpdatedItem = new MutableLiveData<>();
         loadTodoItems();
     }
 
@@ -27,6 +30,10 @@ public class TodoRepository {
             repository = new TodoRepository(application);
         }
         return repository;
+    }
+
+    public LiveData<Event<TodoItem>> getInsertedOrUpdatedItem() {
+        return insertedOrUpdatedItem;
     }
 
     private void loadTodoItems() {
@@ -45,13 +52,22 @@ public class TodoRepository {
 
     public void addItem(TodoItem item) {
         new Thread(
-                () -> todoItemDB.todoItemDao().insert(item)
+                () -> {
+                    long id = todoItemDB.todoItemDao().insert(item);
+                    item.setId(id);
+                    insertedOrUpdatedItem.postValue(new Event<>(item));
+                }
         ).start();
     }
 
     public void updateItem(TodoItem item) {
         new Thread(
-                () -> todoItemDB.todoItemDao().update(item)
+                () -> {
+                    int numberOfRowsChanged = todoItemDB.todoItemDao().update(item);
+                    if (numberOfRowsChanged > 0) {
+                        insertedOrUpdatedItem.postValue(new Event<>(item));
+                    }
+                }
         ).start();
     }
 
