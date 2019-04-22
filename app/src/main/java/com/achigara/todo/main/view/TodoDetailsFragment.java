@@ -3,6 +3,10 @@ package com.achigara.todo.main.view;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,6 +22,7 @@ import com.achigara.todo.common.Event;
 import com.achigara.todo.databinding.TodoDetailsFragmentBinding;
 import com.achigara.todo.main.model.TodoItem;
 import com.achigara.todo.main.viewmodel.TodoDetailsViewModel;
+import com.google.gson.Gson;
 
 import java.util.Calendar;
 
@@ -30,12 +35,10 @@ import androidx.lifecycle.ViewModelProviders;
 
 public class TodoDetailsFragment extends Fragment implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
-    static final String TAG = TodoDetailsFragment.class.getSimpleName();
-
     public static final int ACTION_VIEW = 1;
     public static final int ACTION_CREATE = 2;
     public static final int ACTION_UPDATE = 3;
-
+    static final String TAG = TodoDetailsFragment.class.getSimpleName();
     private static final String TODO_ITEM = "todo_item";
     private static final String ACTION = "action";
 
@@ -54,7 +57,7 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
     static TodoDetailsFragment newInstance(TodoItem todoItem, int action) {
         TodoDetailsFragment fragment = new TodoDetailsFragment();
         Bundle args = new Bundle();
-        args.putParcelable(TODO_ITEM, todoItem);
+        args.putString(TODO_ITEM, new Gson().toJson(todoItem));
         args.putInt(ACTION, action);
         fragment.setArguments(args);
         return fragment;
@@ -64,7 +67,7 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            todoItem = getArguments().getParcelable(TODO_ITEM);
+            todoItem = new Gson().fromJson(getArguments().getString(TODO_ITEM), TodoItem.class);
             action = getArguments().getInt(ACTION);
         }
     }
@@ -104,9 +107,47 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
             }
         });
 
+        todoDetailsFragmentBinding.hours.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                todoDetailsViewModel.setRepeatAlarmErrorValue("");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s) && Integer.valueOf(s.toString()) > 23) {
+                    s.replace(0, s.length(), "23");
+                }
+            }
+        });
+
+        todoDetailsFragmentBinding.minutes.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                todoDetailsViewModel.setRepeatAlarmErrorValue("");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!TextUtils.isEmpty(s) && Integer.valueOf(s.toString()) > 59) {
+                    s.replace(0, s.length(), "59");
+                }
+            }
+        });
+
         todoDetailsFragmentBinding.save.setOnClickListener(view -> {
             todoDetailsViewModel.setTitleErrorValue("");
             todoDetailsViewModel.setAlarmErrorValue("");
+            todoDetailsViewModel.setRepeatAlarmErrorValue("");
             int action = todoDetailsViewModel.getAction().getValue() != null ? todoDetailsViewModel.getAction().getValue() : 0;
             switch (action) {
                 case ACTION_CREATE: {
@@ -134,7 +175,9 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
                 }
             } else {
                 if (getActivity() != null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, TodoListFragment.newInstance())
+                            .commitNow();
                 }
             }
         });
@@ -146,7 +189,8 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
 
         Observer<Event<Boolean>> observeOperationState = event -> {
             if (event.getContentIfNotHandled() && getActivity() != null) {
-                getActivity().getSupportFragmentManager().popBackStack();
+                new Handler().post(() -> getActivity().getSupportFragmentManager().popBackStack()
+                );
             }
         };
         todoDetailsViewModel.getOperationStatus().observe(getViewLifecycleOwner(), observeOperationState);
@@ -208,6 +252,7 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
 
         Calendar newDate = Calendar.getInstance();
+        newDate.clear();
         newDate.set(year, month, dayOfMonth);
 
         if (todoDetailsViewModel.getAlarmTime().getValue() != null) {
@@ -225,6 +270,7 @@ public class TodoDetailsFragment extends Fragment implements DatePickerDialog.On
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
         Calendar newDate = Calendar.getInstance();
+        newDate.clear();
         newDate.set(Calendar.MINUTE, minute);
         newDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
 

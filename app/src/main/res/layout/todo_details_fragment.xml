@@ -31,8 +31,8 @@
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:padding="8dp"
-            app:errorEnabled="true"
             app:error="@{viewmodel.titleError}"
+            app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -74,48 +74,87 @@
                 android:text="@={viewmodel.description}" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <Switch
+            android:id="@+id/enable_alarm_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:checked="@={viewmodel.hasAlarm}"
+            android:enabled="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW)}"
+            android:text="@string/remind_me"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/descriptionInputLayout" />
+
+        <TextView
+            android:id="@+id/on_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/on"
+            app:layout_constraintBaseline_toBaselineOf="@+id/pick_date"
+            app:layout_constraintStart_toEndOf="@+id/enable_alarm_switch" />
+
         <TextView
             android:id="@+id/pick_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="118dp"
-            android:layout_marginRight="118dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
             android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
             android:padding="8dp"
             android:text="@{viewmodel.humanReadableAlarmDate}"
-            app:layout_constraintEnd_toStartOf="@+id/pick_time"
-            app:layout_constraintHorizontal_chainStyle="spread"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/on_text"
             app:layout_constraintTop_toBottomOf="@+id/descriptionInputLayout" />
+
+        <TextView
+            android:id="@+id/at_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/at"
+            app:layout_constraintBaseline_toBaselineOf="@+id/pick_date"
+            app:layout_constraintStart_toEndOf="@+id/pick_date" />
 
         <TextView
             android:id="@+id/pick_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
             android:padding="8dp"
             android:text="@{viewmodel.humanReadableAlarmTime}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/pick_date"
-            app:layout_constraintTop_toBottomOf="@+id/descriptionInputLayout" />
-
-        <TextView
-            android:id="@+id/alarmError"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@{viewmodel.alarmError}"
-            android:textColor="@android:color/holo_red_light"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/barrier" />
+            app:layout_constraintBaseline_toBaselineOf="@+id/pick_date"
+            app:layout_constraintStart_toEndOf="@+id/at_text" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/barrier"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="pick_date" />
+            app:constraint_referenced_ids="pick_date, pick_time,enable_alarm_switch" />
+
+        <TextView
+            android:id="@+id/alarm_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@{viewmodel.alarmError}"
+            android:textColor="@android:color/holo_red_light"
+            android:visibility="@{(!viewmodel.hasAlarm || TextUtils.isEmpty(viewmodel.alarmError)) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/repeat_alarm" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="repeat_alarm_error" />
 
         <Button
             android:id="@+id/save"
@@ -125,7 +164,7 @@
             android:text="@string/save"
             android:visibility="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/alarmError" />
+            app:layout_constraintTop_toBottomOf="@+id/barrier2" />
 
         <Button
             android:id="@+id/cancel"
@@ -135,7 +174,106 @@
             android:text="@string/cancel"
             android:visibility="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW) ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toStartOf="@id/save"
-            app:layout_constraintTop_toBottomOf="@+id/alarmError" />
+            app:layout_constraintTop_toBottomOf="@+id/barrier2" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/alarm_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewmodel.hasAlarm ? View.VISIBLE : View.GONE}"
+            app:constraint_referenced_ids="on_text,at_text,pick_date,pick_time,alarm_error,hours_text,minutes_text,repeat_alarm,hours,minutes" />
+
+        <CheckBox
+            android:id="@+id/repeat_alarm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:checked="@={viewmodel.repeatAlarm}"
+            android:enabled="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW)}"
+            android:text="@string/repeat_alarm"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/barrier" />
+
+        <TextView
+            android:id="@+id/every_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:text="@string/every"
+            app:layout_constraintBaseline_toBaselineOf="@+id/hours"
+            app:layout_constraintStart_toEndOf="@+id/repeat_alarm" />
+
+        <EditText
+            android:id="@+id/hours"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:cursorVisible="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:ems="10"
+            android:focusable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:focusableInTouchMode="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:hint="@string/_00"
+            android:inputType="number"
+            android:maxLength="2"
+            android:text="@={viewmodel.repeatHours}"
+            app:layout_constraintStart_toEndOf="@+id/every_text"
+            app:layout_constraintTop_toTopOf="@+id/barrier" />
+
+        <TextView
+            android:id="@+id/hours_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/hours"
+            app:layout_constraintBaseline_toBaselineOf="@+id/hours"
+            app:layout_constraintStart_toEndOf="@+id/hours" />
+
+        <EditText
+            android:id="@+id/minutes"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:clickable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:cursorVisible="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:ems="10"
+            android:focusable="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:focusableInTouchMode="@{(safeUnbox(viewmodel.action) != TodoDetailsFragment.ACTION_VIEW), default=false}"
+            android:hint="@string/_00"
+            android:inputType="number"
+            android:maxLength="2"
+            android:text="@={viewmodel.repeatMinutes}"
+            app:layout_constraintBaseline_toBaselineOf="@+id/hours"
+            app:layout_constraintStart_toEndOf="@+id/hours_text" />
+
+        <TextView
+            android:id="@+id/minutes_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@string/minutes"
+            app:layout_constraintBaseline_toBaselineOf="@+id/hours"
+            app:layout_constraintStart_toEndOf="@+id/minutes" />
+
+        <TextView
+            android:id="@+id/repeat_alarm_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:text="@{viewmodel.repeatAlarmError}"
+            android:textColor="@android:color/holo_red_light"
+            android:visibility="@{(!viewmodel.repeatAlarm || TextUtils.isEmpty(viewmodel.repeatAlarmError)) ? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/alarm_error" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/repeat_alarm_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{!viewmodel.hasAlarm || !viewmodel.repeatAlarm ? View.GONE : View.VISIBLE}"
+            app:constraint_referenced_ids="hours_text,minutes_text,hours,minutes,every_text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
